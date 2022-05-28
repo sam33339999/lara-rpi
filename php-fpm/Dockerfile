@@ -57,6 +57,13 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" ;\
     mv composer.phar /usr/local/bin/composer
 
 
+ARG UNAME=www-data
+ARG UGROUP=www-data
+ARG UID=1000
+ARG GID=1001
+RUN addgroup $UID $UNAME
+RUN adduser $UNAME $UGROUP
+
 WORKDIR /var/www
 CMD ["php-fpm"]
 EXPOSE 9000
