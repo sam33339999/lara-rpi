@@ -28,3 +28,5 @@ raspberry pi with docker -> arm version
 
 - zip 
 
+
+- jit
