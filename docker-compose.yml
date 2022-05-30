@@ -7,9 +7,6 @@ networks:
     backend:
         driver: bridge
 
-#volumns:
-#    - ${APP_DIR}:/var/www
-
 services:
     portainer:
         build:
@@ -46,6 +43,17 @@ services:
             - ${APP_DIR}:/var/www:cached
         expose:
             - "9000"
+        extra_hosts:
+            - "dockerhost:${DOCKER_HOST_IP}"
+        networks:
+            - backend
+
+    php-worker:
+        build:
+            context: ./php-worker
+        volumes:
+            - ${APP_DIR}:/var/www:cached
+            - ./php-worker/supervisord.d:/etc/supervisord.d
         extra_hosts:
             - "dockerhost:${DOCKER_HOST_IP}"
         networks:

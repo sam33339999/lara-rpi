@@ -27,6 +27,9 @@ RUN set -xe; \
     apk add iputils; \
     apk add unzip zip libzip-dev
 
+# 更新 pecl
+RUN pecl channel-update pecl.php.net
+
 # 變更 sh 為 bash
 RUN ln -sf /bin/bash /bin/sh
 COPY ./rootfs/root/.bashrc /root/.bashrc
@@ -48,7 +51,7 @@ RUN pecl install redis; \
     rm -rf /tmp/pear
 
 # opcache
-RUN docker-php-ext-install opcache
+# RUN docker-php-ext-install opcache
 
 # composer install
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" ;\
@@ -57,13 +60,18 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" ;\
     mv composer.phar /usr/local/bin/composer
 
 
-ARG UNAME=www-data
-ARG UGROUP=www-data
-ARG UID=1000
-ARG GID=1001
-RUN addgroup $UID $UNAME
-RUN adduser $UNAME $UGROUP
+# ARG UNAME=www-data
+# ARG UGROUP=www-data
+# ARG UID=1000
+# ARG GID=1001
+# RUN addgroup $UID $UNAME
+# RUN adduser $UNAME $UGROUP
 
 WORKDIR /var/www
 CMD ["php-fpm"]
 EXPOSE 9000
+
+# Clean up
+RUN rm /var/cache/apk/*
+
+WORKDIR /etc/supervisor/conf.d/
