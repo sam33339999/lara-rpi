@@ -1,0 +1,60 @@
+version: "3"
+
+
+networks:
+    frontend:
+        driver: bridge
+    backend:
+        driver: bridge
+
+services:
+    portainer:
+        build:
+            context: ./portainer
+        volumes:
+        #    - ${DATA_PATH_HOST}/portainer_data:/data
+            - /var/run/docker.sock:/var/run/docker.sock
+        extra_hosts:
+            - "dockerhost:${DOCKER_HOST_IP}"
+        ports:
+            - 9010:9000
+        networks:
+            - backend
+    
+    nginx:
+        build:
+            context: ./nginx
+        volumes:
+            - ${APP_DIR}:/var/www:cached
+            - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+            - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
+            - ${NGINX_SSL_PATH}:/etc/nginx/ssl
+        ports:
+            - "80:80"
+            - "443:443"
+        networks:
+            - frontend
+            - backend
+
+    php-fpm:
+        build:
+            context: ./php-fpm
+        volumes:
+            - ${APP_DIR}:/var/www:cached
+        expose:
+            - "9000"
+        extra_hosts:
+            - "dockerhost:${DOCKER_HOST_IP}"
+        networks:
+            - backend
+
+    php-worker:
+        build:
+            context: ./php-worker
+        volumes:
+            - ${APP_DIR}:/var/www:cached
+            - ./php-worker/supervisord.d:/etc/supervisord.d
+        extra_hosts:
+            - "dockerhost:${DOCKER_HOST_IP}"
+        networks:
+            - backend
